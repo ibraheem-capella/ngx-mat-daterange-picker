@@ -1,9 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import {
-  Range,
-  NgxDrpOptions,
-  PresetItem
-} from './modules/ngx-mat-drp/model/model';
+import { NgxDrpOptions, PresetItem, Range } from './modules/ngx-mat-drp/model/model';
 
 @Component({
   selector: 'ngx-mat-drp-root',
@@ -11,7 +7,8 @@ import {
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  range: Range = { fromDate: new Date(), toDate: new Date() };
+  range: Range = {fromDate: new Date(), toDate: new Date()};
+  presetRange: Range = {fromDate: new Date(), toDate: new Date()};
   options: NgxDrpOptions;
   presets: Array<PresetItem> = [];
   @ViewChild('pickerOne') pickerOne;
@@ -27,16 +24,34 @@ export class AppComponent implements OnInit {
     this.options = {
       presets: this.presets,
       format: 'mediumDate',
-      range: { fromDate: today, toDate: today },
-      applyLabel: 'Submit'
+      range: {fromDate: today, toDate: today},
+      applyLabel: 'Submit',
       // excludeWeekends:true,
-      // fromMinMax: {fromDate:fromMin, toDate:fromMax},
-      // toMinMax: {fromDate:toMin, toDate:toMax},
+      fromMinMax: {fromDate: null, toDate: today},
+      toMinMax: {fromDate: null, toDate: today},
     };
   }
 
   updateRange(range: Range) {
     this.range = range;
+  }
+
+  preSelectedChanged(d: Range) {
+    console.log(d);
+    this.resetOptions(d);
+  }
+
+  resetOptions(d: Range) {
+    const today = new Date();
+    this.options = {
+      presets: this.presets,
+      format: 'mediumDate',
+      range: {fromDate: today, toDate: today},
+      applyLabel: 'Done',
+      // excludeWeekends:true,
+      fromMinMax: {fromDate: null, toDate: d.toDate},
+      toMinMax: {fromDate: d.fromDate, toDate: today},
+    };
   }
 
   setupPresets() {
@@ -58,23 +73,23 @@ export class AppComponent implements OnInit {
     this.presets = [
       {
         presetLabel: 'Yesterday',
-        range: { fromDate: yesterday, toDate: today }
+        range: {fromDate: yesterday, toDate: today}
       },
       {
         presetLabel: 'Last 7 Days',
-        range: { fromDate: minus7, toDate: today }
+        range: {fromDate: minus7, toDate: today}
       },
       {
         presetLabel: 'Last 30 Days',
-        range: { fromDate: minus30, toDate: today }
+        range: {fromDate: minus30, toDate: today}
       },
       {
         presetLabel: 'This Month',
-        range: { fromDate: currMonthStart, toDate: currMonthEnd }
+        range: {fromDate: currMonthStart, toDate: currMonthEnd}
       },
       {
         presetLabel: 'Last Month',
-        range: { fromDate: lastMonthStart, toDate: lastMonthEnd }
+        range: {fromDate: lastMonthStart, toDate: lastMonthEnd}
       }
     ];
   }
@@ -83,6 +98,6 @@ export class AppComponent implements OnInit {
     const today = new Date();
     const currMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
     const currMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    this.pickerOne.resetDates({ fromDate: currMonthStart, toDate: currMonthEnd });
+    this.pickerOne.resetDates({fromDate: currMonthStart, toDate: currMonthEnd});
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { PresetItem, NgxDrpOptions } from '../model/model';
+import { PresetItem } from '../model/model';
 import { RangeStoreService } from '../services/range-store.service';
 import { OverlayRef } from '@angular/cdk/overlay';
 import { ConfigStoreService } from '../services/config-store.service';
@@ -30,35 +30,40 @@ export class PickerOverlayComponent implements OnInit {
     private rangeStoreService: RangeStoreService,
     private configStoreService: ConfigStoreService,
     private overlayRef: OverlayRef
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.fromDate = this.rangeStoreService.fromDate;
     this.toDate = this.rangeStoreService.toDate;
-    this.startDatePrefix = this.configStoreService.ngxDrpOptions.startDatePrefix || 'FROM:';
-    this.endDatePrefix = this.configStoreService.ngxDrpOptions.endDatePrefix || 'TO:';
-    this.applyLabel = this.configStoreService.ngxDrpOptions.applyLabel || 'Apply';
-    this.cancelLabel = this.configStoreService.ngxDrpOptions.cancelLabel || 'Cancel';
-    this.presets = this.configStoreService.ngxDrpOptions.presets;
-    this.shouldAnimate = this.configStoreService.ngxDrpOptions.animation
-      ? 'enter'
-      : 'noop';
-    ({
-      fromDate: this.fromMinDate,
-      toDate: this.fromMaxDate
-    } = this.configStoreService.ngxDrpOptions.fromMinMax);
-    ({
-      fromDate: this.toMinDate,
-      toDate: this.toMaxDate
-    } = this.configStoreService.ngxDrpOptions.toMinMax);
+    this.configStoreService.configUpdate$.subscribe((config)=>{
+      this.startDatePrefix = config.startDatePrefix || 'FROM:';
+      this.endDatePrefix = config.endDatePrefix || 'TO:';
+      this.applyLabel = config.applyLabel || 'Apply';
+      this.cancelLabel = config.cancelLabel || 'Cancel';
+      this.presets = config.presets;
+      this.shouldAnimate = config.animation
+        ? 'enter'
+        : 'noop';
+      ({
+        fromDate: this.fromMinDate,
+        toDate: this.fromMaxDate
+      } = config.fromMinMax);
+      ({
+        fromDate: this.toMinDate,
+        toDate: this.toMaxDate
+      } = config.toMinMax);
+    });
   }
 
   updateFromDate(date) {
     this.fromDate = date;
+    this.rangeStoreService.updatePreselectRange(this.fromDate, this.toDate);
   }
 
   updateToDate(date) {
     this.toDate = date;
+    this.rangeStoreService.updatePreselectRange(this.fromDate, this.toDate);
   }
 
   updateRangeByPreset(presetItem: PresetItem) {

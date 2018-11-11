@@ -1,19 +1,21 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  OnInit,
-  ViewChild,
-  Output,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { OverlayRef } from '@angular/cdk/overlay';
 import { CalendarOverlayService } from '../services/calendar-overlay.service';
 import { RangeStoreService } from '../services/range-store.service';
-import { Range, NgxDrpOptions } from '../model/model';
+import { NgxDrpOptions, Range } from '../model/model';
 import { ConfigStoreService } from '../services/config-store.service';
 import { Subscription } from 'rxjs';
 
@@ -29,15 +31,17 @@ import { Subscription } from 'rxjs';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class NgxMatDrpComponent implements OnInit, OnDestroy {
+export class NgxMatDrpComponent implements OnInit, OnDestroy, OnChanges {
   @ViewChild('calendarInput')
   calendarInput;
   @Output()
   readonly selectedDateRangeChanged: EventEmitter<Range> = new EventEmitter<Range>();
+  @Output()
+  readonly preSelectedDateRangeChanged: EventEmitter<Range> = new EventEmitter<Range>();
   @Input()
   options: NgxDrpOptions;
-  private rangeUpdate$: Subscription;
   selectedDateRange = '';
+  private rangeUpdate$: Subscription;
 
   constructor(
     private changeDetectionRef: ChangeDetectorRef,
@@ -45,9 +49,45 @@ export class NgxMatDrpComponent implements OnInit, OnDestroy {
     public rangeStoreService: RangeStoreService,
     public configStoreService: ConfigStoreService,
     private datePipe: DatePipe
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
+    this.setOptions();
+  }
+
+  ngOnDestroy() {
+    if (this.rangeUpdate$) {
+      this.rangeUpdate$.unsubscribe();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (!!changes.options) {
+      this.setOptions();
+    }
+
+  }
+
+  openCalendar(event) {
+    const overlayRef: OverlayRef = this.calendarOverlayService.open(
+      this.options.calendarOverlayConfig,
+      this.calendarInput
+    );
+  }
+
+  public resetDates(range: Range) {
+    this.rangeStoreService.updateRange(
+      range.fromDate,
+      range.toDate
+    );
+  }
+
+  private formatToDateString(date: Date, format: string): string {
+    return this.datePipe.transform(date, format);
+  }
+
+  private setOptions() {
     this.configStoreService.ngxDrpOptions = this.options;
     this.options.placeholder = this.options.placeholder || 'Choose a date';
     this.rangeUpdate$ = this.rangeStoreService.rangeUpdate$.subscribe(range => {
@@ -63,34 +103,14 @@ export class NgxMatDrpComponent implements OnInit, OnDestroy {
       this.selectedDateRangeChanged.emit(range);
     });
 
+    this.rangeUpdate$ = this.rangeStoreService.preselectRangeUpdate$.subscribe(range => {
+      this.preSelectedDateRangeChanged.emit(range);
+    });
+
     this.rangeStoreService.updateRange(
       this.options.range.fromDate,
       this.options.range.toDate
     );
     this.changeDetectionRef.detectChanges();
-  }
-
-  ngOnDestroy() {
-    if (this.rangeUpdate$) {
-      this.rangeUpdate$.unsubscribe();
-    }
-  }
-
-  private formatToDateString(date: Date, format: string): string {
-    return this.datePipe.transform(date, format);
-  }
-
-  openCalendar(event) {
-    const overlayRef: OverlayRef = this.calendarOverlayService.open(
-      this.options.calendarOverlayConfig,
-      this.calendarInput
-    );
-  }
-
-  public resetDates(range: Range) {
-    this.rangeStoreService.updateRange(
-      range.fromDate,
-      range.toDate
-    );
   }
 }

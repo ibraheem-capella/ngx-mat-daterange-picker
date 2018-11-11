@@ -5,12 +5,13 @@
 }
 
 .ngx-mat-drp-presets-list li {
-    margin: 5px 0 5px 0;
-    padding: 4%;
+    margin: 1px;
+    padding: 10px;
     cursor: pointer;
     background: #fafafa;
     color: #3f51b5;
     user-select: none;
+    display: inline-block;
 }
 
 .ngx-mat-drp-presets-list li:hover {

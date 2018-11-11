@@ -1,26 +1,42 @@
 .ngx-mat-drp-calendar-container {
     display: flex;
-    justify-content: space-around;
-    min-width: 650px;
-    height: 300px;
+    justify-content: flex-start;
+    max-width: 520px;
+    /*height: 300px;*/
+    flex-wrap: wrap;
 }
 
 .ngx-mat-drp-calendar-item {
-    flex-basis: 33.33%;
+    flex-basis: 50%;
     min-width: 210px;
-    padding: 1em;
+  /*padding: 1em;*/
     font-family: Roboto,"Helvetica Neue",sans-serif;
     font-size: 14px;
     font-weight: 400;
+    /*max-width: 50%;*/
+    max-width: 240px;
+    padding: 1em 0.6em;
+}
+.ngx-mat-drp-calendar-item:last-child {
+    flex-basis: 100%;
+    max-width: none;
 }
 
 .ngx-mat-drp-menu {
     height: 100%;
+    max-width: 100%;
+    width: 100%;
+    display: flex;
+    min-width: 100%;
+    margin: auto;
+    justify-content: center;
+    padding: 0;
+    flex-wrap: wrap;
 }
 .ngx-mat-drp-controls {
     display: flex;
     justify-content: space-around;
-    margin: 10% auto;
+    margin: auto;
 }
 
 .ngx-mat-drp-overlay {

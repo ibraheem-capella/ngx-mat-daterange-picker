@@ -1,12 +1,12 @@
 import {
-  Component,
-  ViewChild,
-  Output,
-  Input,
-  EventEmitter,
   ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
   OnChanges,
-  SimpleChanges
+  Output,
+  SimpleChanges,
+  ViewChild
 } from '@angular/core';
 import { MatCalendar } from '@angular/material/datepicker';
 import { ConfigStoreService } from '../services/config-store.service';
@@ -43,14 +43,18 @@ export class CalendarWrapperComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     // Necessary to force view refresh
-    this.matCalendar.activeDate = changes.selectedDate.currentValue;
+    if (!!changes.selectedDate) {
+      this.matCalendar.activeDate = changes.selectedDate.currentValue;
+    }
   }
 
   onSelectedChange(date) {
     this.selectedDateChange.emit(date);
   }
 
-  onYearSelected(e) {}
+  onYearSelected(e) {
+  }
 
-  onUserSelection(e) {}
+  onUserSelection(e) {
+  }
 }
